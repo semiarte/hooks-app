@@ -1,4 +1,4 @@
-import { useReducer, useState } from 'react';
+import { useEffect, useReducer, useState } from 'react';
 
 import { Plus, Trash2, Check } from 'lucide-react';
 
@@ -9,9 +9,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { getTaskInitialState, tasksReducer } from '@/04-useRef/reducer/tasksReducer';
 
 export const TasksApp = () => {
-    // const [todos, setTodos] = useState<Todo[]>([]);
     const [inputValue, setInputValue] = useState('');
     const [state, dispatch] = useReducer(tasksReducer, getTaskInitialState());
+
+
+    useEffect(() => {
+        localStorage.setItem('tasks-state', JSON.stringify(state));
+    }, [state])
+
 
     const addTodo = () => {
         if (inputValue.length === 0) return;
@@ -36,7 +41,7 @@ export const TasksApp = () => {
 
     };
 
-    const { todos, completed: completedCount, lenght: totalCount } = state;
+    const { todos, completed: completedCount, length: totalCount } = state;
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4">
