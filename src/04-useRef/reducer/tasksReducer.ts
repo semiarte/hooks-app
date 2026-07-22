@@ -1,3 +1,5 @@
+import * as z from "zod/v4";
+
 interface Todo {
     id: number;
     text: string;
@@ -7,7 +9,7 @@ interface Todo {
 // state to return
 interface TaskState {
     todos: Todo[];
-    lenght: number;
+    length: number;
     completed: number;
     pending: number;
 }
@@ -18,14 +20,46 @@ export type TaskAction =
     | { type: 'TOGGLE_TODO', payload: number }
     | { type: 'DELETE_TODO', payload: number };
 
+const TodoSchema = z.object({
+    id: z.number(),
+    text: z.string(),
+    completed: z.boolean(),
+});
+
+const TaskStateSchema = z.object({
+    todos: z.array(TodoSchema),
+    length: z.number(),
+    completed: z.number(),
+    pending: z.number(),
+});
+
 // Initial state
 export const getTaskInitialState = (): TaskState => {
-    return {
-        todos: [],
-        completed: 0,
-        pending: 0,
-        lenght: 0,
-    };
+
+    const localStorageState = localStorage.getItem('tasks-state');
+
+    if (!localStorageState) {
+        return {
+            todos: [],
+            completed: 0,
+            pending: 0,
+            length: 0,
+        };
+    }
+
+    // Zod validation
+    const result = TaskStateSchema.safeParse(JSON.parse(localStorageState));
+
+    if (result.error) {
+        console.log(result.error);
+        return {
+            todos: [],
+            completed: 0,
+            pending: 0,
+            length: 0,
+        };
+    }
+    return result.data;
 };
 
 // returns always an state (never null)
@@ -40,7 +74,7 @@ export const tasksReducer = (state: TaskState, action: TaskAction): TaskState =>
             return {
                 ...state,
                 todos: [...state.todos, newTodo],
-                lenght: state.todos.length + 1,
+                length: state.todos.length + 1,
                 pending: state.pending + 1,
             };
         }
@@ -51,7 +85,7 @@ export const tasksReducer = (state: TaskState, action: TaskAction): TaskState =>
                 return {
                     ...state,
                     todos: currentTodos,
-                    lenght: currentTodos.length,
+                    length: currentTodos.length,
                     completed: currentTodos.filter((todo) => todo.completed).length,
                     pending: currentTodos.filter((todo) => !todo.completed).length,
                 };
