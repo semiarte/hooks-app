@@ -1,13 +1,13 @@
 import { useRef } from "react"
 
 export const FocusScreen = () => {
-    // Initial value null react syncrony
+    // Initial value null cause of react syncrony
     const inputRef = useRef<HTMLInputElement>(null);
 
     const handleClick = () => {
         console.log(inputRef.current?.value);
         inputRef.current?.select(); // you can use it to reset a password
-        // inputRef.current?.select();
+        // inputRef.current?.focus();
     }
 
     return (
